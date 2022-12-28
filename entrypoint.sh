@@ -25,8 +25,17 @@ _git_changed() {
     [[ -n "$(git status -s)" ]]
 }
 
+# Since we are running in a docker container we don't own the git repo,
+# git will fail without this workaround.
+git config --global --add safe.directory $(pwd)
+
+echo "Python version: $(python --version)"
+echo "Autopep8 version: $(autopep8 --version)"
+
 echo "Running autopep8..."
+set -x
 autopep8 -i -r $INPUT_CHECKPATH $INPUT_OPTIONS || echo "Problem running autopep8!"
+set +x
 
 if $INPUT_NO_COMMIT; then
   exit 0
@@ -36,6 +45,9 @@ if _git_changed;
 then
   if $INPUT_DRY; then
     echo "Found non-compliant files!"
+    echo "$(git status -s)"
+    echo "Changes autopep8 wants: "
+    echo "$(git diff)"
     exit 1
   else
     # Calling method to configure the git environemnt

@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.9
+FROM node:lts-alpine
 
 RUN apk update && apk add --no-cache bash git openssh python3 py3-pip
 
